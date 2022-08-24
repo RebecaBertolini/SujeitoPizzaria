@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//criar uma migration: yarn prisma migrate dev
+//Criacao da tabela de User:
+model User {
+  id         String    @id @default(uuid())
+  name       String
+  email      String
+  password   String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //o nome que sera criada a tabela:
+  @@map("users")
+}
+
+model Category {
+  //uuid gera automaticamente um id
+  id         String    @id @default(uuid())
+  name       String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //relacionamento. Uma categoria pode ter vários produtos dentro
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String    @id @default(uuid())
+  name         String
+  price        String
+  descripition String
+  banner       String
+  created_at   DateTime? @default(now())
+  updated_at   DateTime? @default(now())
+
+  category    Category @relation(fields: [category_id], references: [id])
+  category_id String
+  items       Item[]
+
+  @@map("products")
+}
+
+model Order {
+  id     String  @id @default(uuid())
+  table  Int
+  //status inicial como falso até concluir o pedido
+  status Boolean @default(false)
+  //sempre inicia como rascunho true
+  draft  Boolean @default(true)
+  //colocar interrogação no final: dado opicional
+  name   String?
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+  itens      Item[]
+
+  @@map("orders")
+}
+
+model Item {
+  id     String @id @default(uuid())
+  //quantidade de itens:
+  amount Int
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  order      Order   @relation(fields: [order_id], references: [id])
+  product    Product @relation(fields: [product_id], references: [id])
+  order_id   String
+  product_id String
+
+  @@map("items")
+}
