@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from 'react';
+import { createContext, ReactNode, useState, useEffect } from 'react';
 
 import { api } from '../services/apiClient';
 
@@ -54,6 +54,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     //!! - converte a variavel em boolean, ou seja, se nao existir sera falso
     const isAuthenticated = !!user;
+
+    useEffect(() => {
+
+        //tentar pegar o token no cookie
+        const {'@sujeitopizza.token': token} = parseCookies();
+
+        //se tem token faz a chamada na api e verifica qual usuario trazendo as informacoes
+        if(token){
+            api.get('/userinfo').then(response => {
+                const { id, name, email } = response.data;
+                setUser({
+                    id, 
+                    name, 
+                    email
+                })
+            }).catch(() => {
+                //se der erro deslogar usuario
+                signOut();
+            })
+        }
+
+    }, [])
 
     async function signIn({email, password}: SignInProps){
         try {

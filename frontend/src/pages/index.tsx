@@ -87,7 +87,7 @@ export default function Home() {
 
 //funcao SSR para que usuarios logados nao acessem a pagina de login
 
-export const GetServerSideProps = canSSRGuest( async (ctx) => {
+export const getServerSideProps = canSSRGuest( async (ctx) => {
   return {
     props: {}
   }
